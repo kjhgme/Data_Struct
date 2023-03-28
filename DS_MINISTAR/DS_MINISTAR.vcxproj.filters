@@ -18,8 +18,13 @@
     <ClCompile Include="project.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="초기코드struct.cpp">
+    <ClCompile Include="DS4-2016180015-김지호-초기코드.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DS4-2016180015-김지호-초기코드.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

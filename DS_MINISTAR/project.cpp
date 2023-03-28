@@ -1,17 +1,22 @@
 // 3월 13일, 20일 test. 
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 using namespace std;
 
 void FirstPlace();
-void Display();
 void Produce(char type, int x, int y, char* name);
-void Select(int x, int y);
-void SelectAll(int x, int y, int x2, int y2);
-void Destroy(int x, int y);
-void FindTarget(int x, int y);
-void SortByID();
+
+void ShowOrderList();
+void Order(char* order);
+void Display();
+void DestroyAll(int x, int y, int x2, int y2);
+void GetDistance(int x, int y, int x2, int y2);
+void FindWeakEnemy(int x, int y, int distance);
+void SortByDistance(int x, int y);
+
 
 struct Unit {
 	char type;
@@ -38,16 +43,21 @@ Unit Tank = { 'T', 'T', 120, 0, 4, 17, 40, 0, 1, 2 };
 Unit Vessel = { 'V', 'T', 80, 140, 5, 12, 50, 35, 3, 2 };
 
 Unit map[20][40];
+Unit tempList[800];
+int tempDistance[800];
+
+char* OrderList[5]{ "p 1 1", "s 1 1", "m 1 1" };
 
 int main()
 {
 	char command{};
-	char type{};
+	char* order = new char[10];
 	int x{};
 	int y{};
 	int x2{};
 	int y2{};
-	char* name = new char[10];
+	int distance{};
+
 
 	FirstPlace();
 	Display();
@@ -55,13 +65,13 @@ int main()
 	while (true)
 	{
 		cout << endl;
-		cout << "1: Display" << endl;
-		cout << "2: Produce" << endl;
-		cout << "3: Select" << endl;
-		cout << "4: SelectAll" << endl;
-		cout << "5: Destroy" << endl;
-		cout << "6: FindTarget" << endl;
-		cout << "7: SortByID" << endl;
+		cout << "1: ShowOrderList" << endl;
+		cout << "2: Order" << endl;
+		cout << "3: Display" << endl;
+		cout << "4: DestroyAll" << endl;
+		cout << "5: GetDistance" << endl;
+		cout << "6: FindWeakEnemy" << endl;
+		cout << "7: SortByDistance" << endl;
 		cout << "8: Quit" << endl;
 		cout << "커맨드를 입력해주세요 : ";
 		cin >> command;
@@ -69,41 +79,35 @@ int main()
 		switch (command)
 		{
 		case '1':
-			Display();
+			ShowOrderList();
 			break;
 		case '2':
-			cout << "-Produce-" << endl;
-			cout << "유닛의 타입, 좌표, 설정할 이름을 입력해주세요. (ex. H 1 1 H01) : ";
-			cin >> type >> x >> y >> name;
-			Produce(type, x, y, name);
+			cout << "추가하실 명령을 입력해주세요(p: 생산, s/S: 선택, a: 공격, m: 이동) : ";
+			scanf(" %[^\n]s", order);
+			Order(order);
 			break;
 		case '3':
-			cout << "-Select-" << endl;
-			cout << "좌표 ( x, y )를 입력해주세요. (ex. 1 1) : ";
-			cin >> x >> y;
-			Select(x, y);
+			Display();
 			break;
 		case '4':
-			cout << "-SelectAll-" << endl;
-			cout << "좌표( x, y, x2, y2 )를 입력해주세요. (ex. 1 1 2 2) : ";
+			cout << "범위 안의 유닛을 모두 파괴합니다.(ex. 1 1 4 4) : ";
 			cin >> x >> y >> x2 >> y2;
-			SelectAll(x, y, x2, y2);
+			DestroyAll(x, y, x2, y2);
 			break;
 		case '5':
-			cout << "-Destroy-" << endl;
-			cout << "좌표 ( x, y )를 입력해주세요. (ex. 1 1) : ";
-			cin >> x >> y;
-			Destroy(x, y);
+			cout << "두 좌표간의 거리를 출력합니다.(ex. 1 1 4 4) : ";
+			cin >> x >> y >> x2 >> y2;
+			GetDistance(x, y, x2, y2);
 			break;
 		case '6':
-			cout << "-FindTarget-" << endl;
-			cout << "좌표 ( x, y )를 입력해주세요. (ex. 1 1) : ";
-			cin >> x >> y;
-			FindTarget(x, y);
+			cout << "주어진 좌표로부터 주어진 거리내에 있는 유닛들 중 가장 HP가 작은 유닛의 정보를 출력합니다. (ex.1 1 5) : ";
+			cin >> x >> y >> distance;
+			FindWeakEnemy(x, y, distance);
 			break;
 		case '7':
-			cout << "-SortByID-" << endl;
-			SortByID();
+			cout << "주어진 좌표에 가까운 것부터 순서대로 출력합니다. 거리가 같으면 ID순으로 출력합니다. (ex. 1 1) : ";
+			cin >> x >> y;
+			SortByDistance(x, y);
 			break;
 		case '8':
 			cout << "미니스타를 종료합니다." << endl;
@@ -147,18 +151,6 @@ void FirstPlace()
 	Produce('H', 15, 38, "H05");
 	Produce('D', 15, 39, "D02");
 	Produce('H', 14, 39, "H06");
-}
-
-void Display()
-{
-	for (int i = 0; i < 20; ++i)
-	{
-		for (int j = 0; j < 40; ++j)
-		{
-			cout << map[i][j].type;
-		}
-		cout << endl;
-	}
 }
 
 void Produce(char type, int x, int y, char* name)
@@ -225,35 +217,70 @@ cantProduce:
 	}
 }
 
-void Select(int x, int y)
+void ShowOrderList()
 {
-	if (x >= 20 || x < 0 || y < 0 || y >= 40)
+	for (int i = 0; i < sizeof(OrderList)/sizeof(char*); ++i)
 	{
-		cout << "존재하지 않는 위치입니다." << endl;
-	}
-	else
-	{
-		if (map[x][y].type == ' ')
-			cout << "해당 위치에는 유닛이 존재하지 않습니다." << endl;
-		else {
-			cout << "유닛의 종족 : " << map[x][y].tribe << endl;
-			cout << "유닛의 타입 : " << map[x][y].type << endl;
-			cout << "유닛의 HP : " << map[x][y].HP << endl;
-			cout << "유닛의 MP : " << map[x][y].MP << endl;
-			cout << "유닛의 이동거리 : " << map[x][y].Distance << endl;
-			cout << "유닛의 사거리 : " << map[x][y].AttackDistance << endl;
-			cout << "유닛의 공격력 : " << map[x][y].AttackDamage << endl;
-			cout << "유닛의 소모MP : " << map[x][y].UsingMP << endl;
-			cout << "유닛의 공격범위 : " << map[x][y].AttackRange << endl;
-			cout << "유닛의 생산시 소모 행동력 : " << map[x][y].Minerals << endl;
-			cout << "유닛의 위치 : ( " << map[x][y].PositionX << ", " << map[x][y].PositionY << " )" << endl;
-			cout << "유닛의 이름 : " << map[x][y].name << endl;
-			cout << endl;
-		}
+		if (OrderList[i] == NULL)
+			break;
+		cout << OrderList[i] << endl;
 	}
 }
 
-void SelectAll(int x, int y, int x2, int y2)
+void Order(char* order)
+{
+	char* tempOrder = new char[10];
+	strcpy(tempOrder, order);
+
+	for (int i = 0; i < sizeof(OrderList) / sizeof(char*); ++i)
+	{
+		if (OrderList[i] == NULL)
+		{
+			if (order[0] == 'p') {
+				cout << "-Produce-" << endl;
+				OrderList[i] = tempOrder;
+			}
+			else if (order[0] == 's') {
+				cout << "-Select-" << endl;
+				OrderList[i] = tempOrder;
+			}
+			else if (order[0] == 'S') {
+				cout << "-SelectAll-" << endl;
+				OrderList[i] = tempOrder;
+			}
+			else if (order[0] == 'a') {
+				cout << "-Attack-" << endl;
+				OrderList[i] = tempOrder;
+			}
+			else if (order[0] == 'm') {
+				cout << "-Move-" << endl;
+				OrderList[i] = tempOrder;
+			}
+			else {
+				cout << "없는 명령어입니다." << endl;
+			}
+			break;
+		}
+		else if (i == sizeof(OrderList) / sizeof(char*)-1 && OrderList[i] != NULL)
+		{
+			cout << "더 이상 명령을 추가할 수 없습니다." << endl;
+		}
+	}
+
+	
+}
+
+void Display()
+{
+	for (int i = 0; i < 20; ++i) {
+		for (int j = 0; j < 40; ++j) {
+			cout << map[i][j].type;
+		}
+		cout << endl;
+	}
+}
+
+void DestroyAll(int x, int y, int x2, int y2)
 {
 	int BigX{};
 	int BigY{};
@@ -290,112 +317,151 @@ void SelectAll(int x, int y, int x2, int y2)
 		{
 			for (int j = SmallY; j <= BigY; ++j)
 			{
-				if (map[i][j].type != ' ')
-					Select(i, j);
+				map[i][j] = init;
 			}
 		}
+
+		cout << "펑! 해당 범위의 유닛들을 파괴했습니다." << endl;
 	}
 }
 
-void Destroy(int x, int y)
+void GetDistance(int x, int y, int x2, int y2)
 {
+	if (x >= 20 || x < 0 || y < 0 || y >= 40
+		|| x2 >= 20 || x2 < 0 || y2 < 0 || y2 >= 40)
+	{
+		cout << "존재하지 않는 위치입니다." << endl;
+	}
+	else {
+		if (abs(x-x2) >= abs(y-y2))
+			cout << "두 좌표간의 거리는 " << abs(x-x2) << "입니다." << endl;
+		else
+			cout << "두 좌표간의 거리는 " << abs(y-y2) << "입니다." << endl;
+	}
+}
+
+void FindWeakEnemy(int x, int y, int distance)
+{
+	int tempHP = 999;
+	bool IsFindedEnemy = false;
+
 	if (x >= 20 || x < 0 || y < 0 || y >= 40)
 	{
 		cout << "존재하지 않는 위치입니다." << endl;
 	}
-	else
-		map[x][y] = init;
+	else if (map[x][y].tribe == ' ') {
+		cout << "해당 좌표에 유닛이 존재하지 않습니다." << endl;
+	}
+	else {
+		for (int i = x - distance; i < x + distance; ++i)
+		{
+			for (int j = y - distance; j < y + distance; ++j)
+			{
+				if (i >= 0 && i < 20 && j >= 0 && j < 40)
+				{
+					if (map[x][y].tribe == 'Z')
+					{
+						if (map[i][j].tribe == 'T' && map[i][j].HP < tempHP)
+							tempHP = map[i][j].HP;
+					}
+					else if (map[x][y].tribe == 'T')
+					{
+						if (map[i][j].tribe == 'Z' && map[i][j].HP < tempHP)
+							tempHP = map[i][j].HP;
+					}
+				}
+			}
+		}
+
+		for (int i = x - distance; i < x + distance; ++i)
+		{
+			for (int j = y - distance; j < y + distance; ++j)
+			{
+				if (i >= 0 && i < 20 && j >= 0 && j < 40)
+				{
+					if (map[i][j].type != ' ' && map[i][j].HP == tempHP)
+					{
+						cout << "유닛의 종족 : " << map[i][j].tribe << endl;
+						cout << "유닛의 타입 : " << map[i][j].type << endl;
+						cout << "유닛의 HP : " << map[i][j].HP << endl;
+						cout << "유닛의 MP : " << map[i][j].MP << endl;
+						cout << "유닛의 이동거리 : " << map[i][j].Distance << endl;
+						cout << "유닛의 사거리 : " << map[i][j].AttackDistance << endl;
+						cout << "유닛의 공격력 : " << map[i][j].AttackDamage << endl;
+						cout << "유닛의 소모MP : " << map[i][j].UsingMP << endl;
+						cout << "유닛의 공격범위 : " << map[i][j].AttackRange << endl;
+						cout << "유닛의 생산시 소모 행동력 : " << map[i][j].Minerals << endl;
+						cout << "유닛의 위치 : ( " << map[i][j].PositionX << ", " << map[i][j].PositionY << " )" << endl;
+						cout << "유닛의 이름 : " << map[i][j].name << endl;
+						cout << endl;
+
+						IsFindedEnemy = true;
+					}
+				}
+			}
+		}
+	}
+
+	if (IsFindedEnemy == false)
+		cout << "범위안에 적 유닛이 존재하지 않습니다." << endl;
 }
 
-void FindTarget(int x, int y)
+void SortByDistance(int x, int y)
 {
-	int nearest{ 100 };
 	int distance{};
-	int nearestX{};
-	int nearestY{};
+	Unit temp{init};
 
 	if (x >= 20 || x < 0 || y < 0 || y >= 40)
 	{
 		cout << "존재하지 않는 위치입니다." << endl;
 	}
 	else {
-		if (map[x][y].type == ' ')
+		for (int i = 0; i < 800; ++i)
 		{
-			cout << "해당 위치에 유닛이 존재하지 않습니다." << endl;
+			tempList[i] = init;
 		}
-		else {
-			if (map[x][y].tribe == 'Z')
-			{
-				for (int i = 0; i < 20; ++i)
-				{
-					for (int j = 0; j < 40; ++j)
-					{
-						if (map[i][j].tribe == 'T')
-						{
-							if (abs(x - i) >= abs(y - j))
-								distance = abs(x - i);
-							else
-								distance = abs(y - j);
 
-							if (distance <= nearest)
-							{
-								nearest = distance;
-								nearestX = i;
-								nearestY = j;
-							}
-						}
-					}
-				}
-
-				Select(nearestX, nearestY);
-			}
-			else if (map[x][y].tribe == 'T')
-			{
-				for (int i = 0; i < 20; ++i)
-				{
-					for (int j = 0; j < 40; ++j)
-					{
-						if (map[i][j].tribe == 'Z')
-						{
-							if (abs(x - i) >= abs(y - j))
-								distance = abs(x - i);
-							else
-								distance = abs(y - j);
-
-							if (distance <= nearest)
-							{
-								nearest = distance;
-								nearestX = i;
-								nearestY = j;
-							}
-						}
-					}
-				}
-
-				Select(nearestX, nearestY);
-			}
-		}
-	}
-}
-
-void SortByID()
-{
-	int len = 0;
-
-	while (len < 10)
-	{
 		for (int i = 0; i < 20; ++i)
 		{
 			for (int j = 0; j < 40; ++j)
 			{
-				if (strlen(map[i][j].name) == len && map[i][j].type != ' ')
+				if (map[i][j].type != ' ')
 				{
-					cout << map[i][j].name << endl;
+					if (x == i && y == j)
+						break;
+
+					if (abs(map[x][y].PositionX - map[i][j].PositionX) > abs(map[x][y].PositionY - map[i][j].PositionY))
+					{
+						distance = abs(map[x][y].PositionX - map[i][j].PositionX);
+						temp = map[i][j];
+					}
+					else {
+						distance = abs(map[x][y].PositionY - map[i][j].PositionY);
+						temp = map[i][j];
+					}
+
+					for (int a = 0; a < sizeof(tempDistance) / sizeof(int); ++a)
+					{
+						if (tempDistance[a] == 0)
+						{
+							tempDistance[a] = distance;
+							tempList[a] = temp;
+							break;
+						}
+					}
 				}
 			}
 		}
+	}
 
-		len++;
+	for (int a = 0; a < sizeof(tempDistance) / sizeof(int); ++a)
+	{
+		if (tempDistance[a] == 0)
+		{
+			break;
+		}
+		else {
+			cout << tempDistance[a] << endl;
+		}
 	}
 }
-

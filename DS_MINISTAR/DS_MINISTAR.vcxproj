@@ -128,7 +128,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="project.cpp" />
-    <ClCompile Include="초기코드struct.cpp" />
+    <ClCompile Include="DS4-2016180015-김지호-초기코드.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DS4-2016180015-김지호-초기코드.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
