@@ -101,7 +101,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
@@ -128,7 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="project.cpp" />
-    <ClCompile Include="DS4-2016180015-김지호-초기코드.cpp" />
+    <ClCompile Include="DS5-2016180015-김지호-초기코드.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DS4-2016180015-김지호-초기코드.h" />
