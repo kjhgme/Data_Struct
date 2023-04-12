@@ -18,7 +18,7 @@
     <ClCompile Include="project.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DS5-2016180015-김지호-초기코드.cpp">
+    <ClCompile Include="DS6-2016180015-김지호-초기코드.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

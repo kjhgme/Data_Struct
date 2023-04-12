@@ -5,14 +5,13 @@
 using namespace std;
 
 void Produce(char type, int x, int y, char* name);
-
 void MakeUL();
-void ShowUL();
+
 void ShowUL_R(int i);
-void Select_UL(int x, int y);
-void Select_UL_R(int x, int y, int i);
-void Destroy_UL(int x, int y);
+void Produce_UL_R(int i);
+void SelectAll_UL_R(int x, int y, int x2, int y2, int i);
 void Destroy_UL_R(int x, int y, int i);
+void FindWeakEnemy_R(int x, int y, int distance, int i);
 void DisplayMap_UL();
 
 struct Unit {
@@ -45,7 +44,23 @@ int unitCnt{};
 int main()
 {
 	char command{};
-	int x{}, y{};
+	int x{}, y{}, x2{}, y2{};
+
+	char type;
+	char tribe;
+	int HP;
+	int MP;
+	int Distance;
+	int AttackDistance;
+	int AttackDamage;
+	int UsingMP;
+	int AttackRange;
+	int Minerals;
+	int PositionX;
+	int PositionY;
+	char* name = " ";
+
+	int distance{};
 
 	MakeUL();
 
@@ -53,57 +68,53 @@ int main()
 	{
 		cout << endl;
 		cout << "_____커맨드창_____" << endl;
-		cout << "1: ShowUL" << endl;
-		cout << "2: ShowUL_R" << endl;
-		cout << "3: Select_UL" << endl;
-		cout << "4: Select_UL_R" << endl;
-		cout << "5: Destroy_UL" << endl;
-		cout << "6: Destroy_UL_R" << endl;
-		cout << "7: DisplayMap_UL" << endl;
-		cout << "8: Quit" << endl;
+		cout << "1: ShowUL_R" << endl;
+		cout << "2: Produce_UL_R" << endl;
+		cout << "3: SelectAll_UL_R" << endl;
+		cout << "4: Destroy_UL_R" << endl;
+		cout << "5: FindWeakEnemy_R" << endl;
+		cout << "6: DisplayMap_UL" << endl;
+		cout << "7: Quit" << endl;
 		cout << "커맨드를 입력해주세요 : ";
 		cin >> command;
 
 		switch (command)
 		{
 		case '1':
-			cout << "-ShowUL-" << endl;
-			ShowUL();
-			break;
-		case '2':
 			cout << "-ShowUL_R-" << endl;
 			ShowUL_R(0);
 			break;
+		case '2':
+			cout << "-Produce_UL_R-" << endl;
+			cout << "유닛의 정보를 입력해주세요. (type, tribe, HP, MP, Distance, AttackDistance, UsingMP, AttackRange, Minerals, PositionX, PositionY) : " << endl;
+			cin >> type >> tribe >> HP >> MP >> Distance >> AttackDistance >>
+				UsingMP >> AttackRange >> Minerals >> PositionX >> PositionY;
+			Produce_UL_R(0);
+			break;
 		case '3':
-			cout << "-Select_UL-" << endl;
-			cout << "좌표 ( x, y )를 입력해주세요. (ex. 1 1) : ";
-			cin >> x >> y;
-			Select_UL(x, y);
+			cout << "-SelectAll_UL_R-" << endl;
+			cout << "좌표 ( x, y, x2, y2 )를 입력해주세요. (ex. 1 1 19 39) : ";
+			cin >> x >> y >> x2 >> y2;
+			SelectAll_UL_R(x, y, x2, y2, 0);
 			break;
 		case '4':
-			cout << "-Select_UL_R-" << endl;
-			cout << "좌표( x, y )를 입력해주세요. (ex. 1 1) : ";
-			cin >> x >> y;
-			Select_UL_R(x, y, 0);
-			break;
-		case '5':
-			cout << "-Destroy_UL-" << endl;
-			cout << "좌표 ( x, y )를 입력해주세요. (ex. 1 1) : ";
-			cin >> x >> y;
-			Destroy_UL(x, y);
-			break;
-		case '6':
 			cout << "-Destroy_UL_R-" << endl;
-			cout << "좌표 ( x, y )를 입력해주세요. (ex. 1 1) : ";
+			cout << "좌표( x, y )를 입력해주세요. (ex. 1 1) : ";
 			cin >> x >> y;
 			Destroy_UL_R(x, y, 0);
 			break;
-		case '7':
+		case '5':
+			cout << "-FindWeakEnemy_R-" << endl;
+			cout << "좌표 ( x, y )와 거리를 입력해주세요. (ex. 1 1 5) : ";
+			cin >> x >> y >> distance;
+			FindWeakEnemy_R(x, y, distance, 0);
+			break;
+		case '6':
 			cout << "-DisplayMap_UL-" << endl;
 			DisplayMap_UL();
 			break;
-		case '8':
-			cout << "미니스타를 종료합니다." << endl;
+		case '7':
+			cout << "-미니스타를 종료합니다.-" << endl;
 			return 0;
 			break;
 		default:
@@ -220,16 +231,6 @@ void MakeUL()
 	unitlist[19].HP = 50;
 }
 
-void ShowUL()
-{
-	for (int i = 0; i < sizeof(unitlist) / sizeof(Unit); ++i)
-	{
-		if (unitlist[i].type == ' ')
-		{ }
-		else
-			cout << i + 1 << " : " << unitlist[i].name << endl;
-	}
-}
 
 void ShowUL_R(int i)
 {
@@ -243,49 +244,43 @@ void ShowUL_R(int i)
 	ShowUL_R(i);
 }
 
-void Select_UL(int x, int y)
+void Produce_UL_R(int i)
 {
-	if (x >= 20 || x < 0 || y < 0 || y >= 40)
-	{
-		cout << "존재하지 않는 위치입니다." << endl;
-	}
-	else {
-		for (int i = 0; i < sizeof(unitlist) / sizeof(Unit); ++i)
-		{
-			if (unitlist[i].PositionX == x && unitlist[i].PositionY == y)
-			{
-				cout << "유닛의 종족 : " << unitlist[i].tribe << endl;
-				cout << "유닛의 타입 : " << unitlist[i].type << endl;
-				cout << "유닛의 HP : " << unitlist[i].HP << endl;
-				cout << "유닛의 MP : " << unitlist[i].MP << endl;
-				cout << "유닛의 이동거리 : " << unitlist[i].Distance << endl;
-				cout << "유닛의 사거리 : " << unitlist[i].AttackDistance << endl;
-				cout << "유닛의 공격력 : " << unitlist[i].AttackDamage << endl;
-				cout << "유닛의 소모MP : " << unitlist[i].UsingMP << endl;
-				cout << "유닛의 공격범위 : " << unitlist[i].AttackRange << endl;
-				cout << "유닛의 생산시 소모 행동력 : " << unitlist[i].Minerals << endl;
-				cout << "유닛의 위치 : ( " << unitlist[i].PositionX << ", " << unitlist[i].PositionY << " )" << endl;
-				cout << "유닛의 이름 : " << unitlist[i].name << endl;
-				cout << endl;
-				break;
-			}
-			else if (i == sizeof(unitlist) / sizeof(Unit) - 1)
-			{
-				cout << "해당 위치에 유닛이 존재하지 않습니다." << endl;
-			}
-		}
-	}
 }
 
-void Select_UL_R(int x, int y, int i)
+void SelectAll_UL_R(int x, int y, int x2, int y2, int i)
 {
-	if (x >= 20 || x < 0 || y < 0 || y >= 40)
+	int smallX, smallY, bigX, bigY;
+
+	if (x >= 20 || x < 0 || y < 0 || y >= 40 ||
+		x2 >= 20 || x2 < 0 || y2 < 0 || y2 >= 40)
 	{
 		cout << "존재하지 않는 위치입니다." << endl;
 		return;
 	}
 	else {
-		if (unitlist[i].PositionX == x && unitlist[i].PositionY == y)
+		if (x >= x2)
+		{
+			bigX = x;
+			smallX = x2;
+		}
+		else {
+			bigX = x2;
+			smallX = x;
+		}
+
+		if (y >= y2)
+		{
+			bigY = y;
+			smallY = y2;
+		}
+		else {
+			bigY = y2;
+			smallY = y;
+		}
+
+		if (unitlist[i].PositionX >= smallX && unitlist[i].PositionY >= smallY &&
+			unitlist[i].PositionX <= bigX && unitlist[i].PositionY <= bigY)
 		{
 			cout << "유닛의 종족 : " << unitlist[i].tribe << endl;
 			cout << "유닛의 타입 : " << unitlist[i].type << endl;
@@ -300,39 +295,15 @@ void Select_UL_R(int x, int y, int i)
 			cout << "유닛의 위치 : ( " << unitlist[i].PositionX << ", " << unitlist[i].PositionY << " )" << endl;
 			cout << "유닛의 이름 : " << unitlist[i].name << endl;
 			cout << endl;
-			return;
 		}
 		else if (i == sizeof(unitlist) / sizeof(Unit) - 1)
 		{
-			cout << "해당 위치에 유닛이 존재하지 않습니다." << endl;
+			cout << "탐색을 완료했습니다." << endl;
 			return;
 		}
 
 		i++;
-		Select_UL_R(x, y, i);
-	}
-}
-
-void Destroy_UL(int x, int y)
-{
-	if (x >= 20 || x < 0 || y < 0 || y >= 40)
-	{
-		cout << "존재하지 않는 위치입니다." << endl;
-	}
-	else {
-		for (int i = 0; i < sizeof(unitlist) / sizeof(Unit); ++i)
-		{
-			if (unitlist[i].PositionX == x && unitlist[i].PositionY == y)
-			{
-				unitlist[i] = init;
-				cout << "해당 위치의 유닛이 죽었습니다." << endl;
-				break;
-			}
-			else if (i == sizeof(unitlist) / sizeof(Unit) - 1)
-			{
-				cout << "해당 위치에 유닛이 존재하지 않습니다." << endl;
-			}
-		}
+		SelectAll_UL_R(x, y, x2, y2, i);
 	}
 }
 
@@ -348,7 +319,7 @@ void Destroy_UL_R(int x, int y, int i)
 		if (unitlist[i].PositionX == x && unitlist[i].PositionY == y)
 		{
 			unitlist[i] = init;
-			cout << "해당 위치의 유닛이 죽었습니다." << endl;
+			cout << "해당 위치의 유닛이 파괴되었습니다." << endl;
 			return;
 		}
 		else if (i == sizeof(unitlist) / sizeof(Unit) - 1)
@@ -361,6 +332,27 @@ void Destroy_UL_R(int x, int y, int i)
 
 	i++;
 	Destroy_UL_R(x, y, i);
+}
+
+void FindWeakEnemy_R(int x, int y, int distance, int i)
+{
+	if (x >= 20 || x < 0 || y < 0 || y >= 40)
+	{
+		cout << "존재하지 않는 위치입니다." << endl;
+		return;
+	}
+	else if (i == sizeof(unitlist) / sizeof(Unit))
+	{
+		return;
+	}
+	else 
+	{
+		
+	}
+
+
+	i++;
+	FindWeakEnemy_R(x, y, distance, i);
 }
 
 void DisplayMap_UL()
