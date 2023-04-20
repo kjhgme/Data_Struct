@@ -1,3 +1,0 @@
-﻿  project.cpp
-C:\Users\yerw5\OneDrive\Desktop\2023-1\자료구조\Data_Struct\DS_MINISTAR\project.cpp(55,6): warning C4101: 'AttackDamage' :참조되지 않은 지역 변수입니다.
-  DS_MINISTAR.vcxproj -> C:\Users\yerw5\OneDrive\Desktop\2023-1\자료구조\Data_Struct\x64\Debug\DS_MINISTAR.exe

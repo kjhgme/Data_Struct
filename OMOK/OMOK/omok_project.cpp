@@ -3,62 +3,61 @@
 #include <iostream>
 using namespace std;
 
-void FirstPlace();	// 보드 초기화
-void Display();
-
-void PlaceStone();
+void FirstBoard();
+void ShowBoard();
+void PlaceStone(int x, int y);
 void CheckRow();
-void CheckRowContinuous();
-void CheckDiagonalContinuous();
+void Check대각();
+void CheckRowPosition();
 
 char board[19][19];
-int x{}, y{};
 int cnt{};
 int blackCnt{}, whiteCnt{};
 
 int main()
 {
 	char command{};
+	int x{}, y{};
 
-	FirstPlace();
+	FirstBoard();
 
 	while (true)
 	{
-		Display();
-
-		cout << "1.PlaceStone" << endl;
-		cout << "2.CheckRow" << endl;
-		cout << "3.CheckRowContinuous" << endl;
-		cout << "4.CheckDiagonalContinuous" << endl;
-		cout << "command : ";
+		cout << "0. ShowBoard" << endl;
+		cout << "1. PlaceBoard" << endl;
+		cout << "2. CheckRow" << endl;
+		cout << "3. Check대각" << endl;
+		cout << "4. CheckRowPosition" << endl;
+		cout << "명령 입력 : ";
 		cin >> command;
 
 		switch (command)
 		{
+		case '0':
+			ShowBoard();
+			break;
 		case '1':
-			cout << "-PlaceStone-" << endl;
-			PlaceStone();
+			printf("좌표를 입력해주세요. : ");
+			cin >> x >> y;
+			PlaceStone(x, y);
 			break;
 		case '2':
 			cout << "-CheckRow-" << endl;
 			CheckRow();
 			break;
 		case '3':
-			cout << "-CheckRowContinuous-" << endl;
-			CheckRowContinuous();
+			cout << "-Check대각-" << endl;
+			Check대각();
 			break;
 		case '4':
-			cout << "-CheckDiagonalContinuous-" << endl;
-			CheckDiagonalContinuous();
-			break;
-		default:
+			cout << "-CheckRowPosition-" << endl;
+			CheckRowPosition();
 			break;
 		}
-		
 	}
 }
 
-void FirstPlace()
+void FirstBoard()
 {
 	for (int i = 0; i < 19; ++i) {
 		for (int j = 0; j < 19; ++j) {
@@ -67,33 +66,19 @@ void FirstPlace()
 	}
 }
 
-void Display()
+void ShowBoard()
 {
-	cout << endl << " ";
-	for (int i = 0; i < 19; ++i)
-	{
-		cout.width(3);
-		cout << right << i;
-	}
-
-	cout << endl;
-
 	for (int i = 0; i < 19; ++i) {
-		cout.width(3);
-		cout << left << i;
 		for (int j = 0; j < 19; ++j) {
-			cout.width(3);
+			cout.width(2);
 			cout << board[i][j];
 		}
 		cout << endl;
 	}
 }
 
-void PlaceStone()
+void PlaceStone(int x, int y)
 {
-	cout << "좌표를 입력해주세요. : ";
-	cin >> x >> y;
-
 	if (board[x][y] == '+')
 	{
 		if (cnt % 2 == 0)
@@ -108,9 +93,11 @@ void PlaceStone()
 			cnt++;
 			whiteCnt++;
 		}
+
+		cout << "해당 위치에 돌을 착수했습니다." << endl;
 	}
 	else {
-		printf("이 위치에 돌을 둘 수 없습니다.\n");
+		printf("해당 위치에 돌을 둘 수 없습니다.\n");
 	}
 
 	printf("검은 돌의 개수 : %d, 흰 돌의 개수 : %d\n", blackCnt, whiteCnt);
@@ -118,230 +105,350 @@ void PlaceStone()
 
 void CheckRow()
 {
-	int cnt{};
-
-	for (int i = 0; i < 19; ++i)
-	{
-		for (int j = 0; j < 19; ++j)
-		{
-			if (board[i][j] == 'O')
-				cnt++;
-		}
-		cout << "가로 " << i << "의 검은 돌의 갯수 : " << cnt << endl;
-		cnt = 0;
-	}
-
-	for (int i = 0; i < 19; ++i)
-	{
-		for (int j = 0; j < 19; ++j)
-		{
-			if (board[j][i] == 'O')
-				cnt++;
-		}
-		cout << "세로 " << i << "의 검은 돌의 갯수 : " << cnt << endl;
-		cnt = 0;
-	}
-
-	for (int i = 0; i < 19; ++i)
-	{
-		for (int j = 0; j < 19; ++j)
-		{
-			if (board[i][j] == 'X')
-				cnt++;
-		}
-		cout << "가로 " << i << "의 흰 돌의 갯수 : " << cnt << endl;
-		cnt = 0;
-	}
-
-	for (int i = 0; i < 19; ++i)
-	{
-		for (int j = 0; j < 19; ++j)
-		{
-			if (board[j][i] == 'X')
-				cnt++;
-		}
-		cout << "세로 " << i << "의 흰 돌의 갯수 : " << cnt << endl;
-		cnt = 0;
-	}
-}
-
-void CheckRowContinuous()
-{
-	char CStone{};
-	int CSNum{};
-	int bnum{};
-	int wnum{};
+	int MostCnt{};
+	int bCnt{};
+	int wCnt{};
+	char* Color = new char[5] {" "};
 
 	// 가로줄 확인
-	for (int i = 0; i < 19; ++i) {
-		for (int j = 0; j < 19; ++j) {
-			if (board[i][j] != '+' && board[i][j] == 'O')
-			{
-				bnum++;
-			}
-			else if (board[i][j] == '+' || board[i][j] == 'X')
-			{
-				if (bnum > CSNum)
-				{
-					CStone = 'O';
-					CSNum = bnum;
-				}
-				bnum = 0;
-			}
-
-			if (board[i][j] != '+' && board[i][j] == 'X')
-			{
-				wnum++;
-			}
-			else if (board[i][j] == '+' || board[i][j] == 'O')
-			{
-				if (wnum > CSNum)
-				{
-					CStone = 'X';
-					CSNum = wnum;
-				}
-				wnum = 0;
-			}
-		}
-		
-		if (CStone == 'O')
-		{
-			cout << "가로 " << i << "의 가장 많이 연속된 돌은 검은 돌이다. 갯수는 "
-				<< CSNum << endl;
-		}
-		else if(CStone == 'X') {
-			cout << "가로 " << i << "의 가장 많이 연속된 돌은 흰 돌이다. 갯수는 "
-				<< CSNum << endl;
-		}
-		else if (CStone == '\0') {
-			cout << "가로 " << i << "에는 돌이 없습니다." << endl;
-		}
-
-		CStone = '\0';
-		CSNum = 0;
-		bnum = 0;
-		wnum = 0;
-	}
-
-	//세로줄 확인
-	for (int j = 0; j < 19; ++j) {
-		for (int i = 0; i < 19; ++i) {
-
-			if (board[i][j] != '+' && board[i][j] == 'O')
-			{
-				bnum++;
-			}
-			else if (board[i][j] == '+' || board[i][j] == 'X')
-			{
-				if (bnum > CSNum)
-				{
-					CStone = 'O';
-					CSNum = bnum;
-				}
-				bnum = 0;
-			}
-
-			if (board[i][j] != '+' && board[i][j] == 'X')
-			{
-				wnum++;
-			}
-			else if (board[i][j] == '+' || board[i][j] == 'O')
-			{
-				if (wnum > CSNum)
-				{
-					CStone = 'X';
-					CSNum = wnum;
-				}
-				wnum = 0;
-			}
-		}
-
-		if (CStone == 'O')
-		{
-			cout << "세로 " << j << "의 가장 많이 연속된 돌은 검은 돌이다. 갯수는 "
-				<< CSNum << endl;
-		}
-		else if (CStone == 'X') {
-			cout << "세로 " << j << "의 가장 많이 연속된 돌은 흰 돌이다. 갯수는 "
-				<< CSNum << endl;
-		}
-		else if (CStone == '\0') {
-			cout << "세로 " << j << "에는 돌이 없습니다." << endl;
-		}
-
-		CStone = '\0';
-		CSNum = 0;
-		bnum = 0;
-		wnum = 0;
-	}
-}
-
-void CheckDiagonalContinuous()
-{
-	char CStone{};
-	int CSNum{};
-	int bnum{};
-	int wnum{};
-
-	// 왼쪽 위에서 부터 오른쪽 아래로 체크
-	cout << "/ 방향의 대각선 확인." << endl;
 	for (int i = 0; i < 19; ++i)
 	{
 		for (int j = 0; j < 19; ++j)
 		{
+			if (board[i][j] != '+')
+			{
+				if (board[i][j] == 'O')
+				{
+					bCnt++;
+					wCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "검은돌");
+					}
+				}
+				else if (board[i][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "흰돌");
+					}
+				}
+			}
+			else if (board[i][j] == '+')
+			{
+				bCnt = 0;
+				wCnt = 0;
+			}
+		}
+
+		cout << i << "번째 가로줄의 경우 : " << Color << ", " << MostCnt << endl;
+
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		strcpy(Color, " ");
+	}
+
+	// 세로줄 확인
+	for (int j = 0; j < 19; ++j)
+	{
+		for (int i = 0; i < 19; ++i)
+		{
+			if (board[i][j] != '+')
+			{
+				if (board[i][j] == 'O')
+				{
+					bCnt++;
+					wCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "검은돌");
+					}
+				}
+				else if (board[i][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "흰돌");
+					}
+				}
+			}
+		}
+
+		cout << j << "번째 세로줄의 경우 : " << Color << ", " << MostCnt << endl;
+
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		strcpy(Color, " ");
+	}
+}
+
+void Check대각()
+{
+	int MostCnt{};
+	int bCnt{};
+	int wCnt{};
+	char* Color = new char[5] { " " };
+
+	// /모양 위쪽
+	for (int i = 0; i < 19; ++i) {
+		for (int j = 0; j < 19; ++j) {
 			if (i - j < 0)
 				break;
-			
+
 			if (board[i - j][j] != '+')
 			{
 				if (board[i - j][j] == 'O')
 				{
-					bnum++;
+					bCnt++;
+					wCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "검은돌");
+					}
+				}
+				else if (board[i - j][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "흰돌");
+					}
 				}
 			}
-				cout << i - j << " " << j << endl;
+			else if (board[i - j][j] == '+')
+			{
+				bCnt = 0;
+				wCnt = 0;
+			}
 		}
-		
-		CStone = '\0';
-		CSNum = 0;
-		bnum = 0;
-		wnum = 0;
+
+		cout << i << "번째 /형 대각선의 경우 : " << Color << ", " << MostCnt << endl;
+
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		strcpy(Color, " ");
 	}
 
-	cout << "-------------------" << endl;
+	// /모양 아래쪽
+	for (int i = 1; i < 19; ++i) {
+		for (int j = 18; j >= 0; --j) {
+			if (i + (18 - j) > 18)
+				break;
 
-	//for (int i = 18; i > 0; --i) {
-	//	for (int j = 18; j >= 0; --j) {
-	//		if (j-i < 0)
-	//			break;
-	//		cout << i+(18-j) << " " << j << endl;
-	//	}
-	//	cout << endl;
-	//}
+			if (board[i + (18 - j)][j] != '+')
+			{
+				if (board[i + (18 - j)][j] == 'O')
+				{
+					bCnt++;
+					wCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "검은돌");
+					}
+				}
+				else if (board[i + (18 - j)][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "흰돌");
+					}
+				}
+			}
+			else if (board[i + (18 - j)][j] == '+')
+			{
+				bCnt = 0;
+				wCnt = 0;
+			}
+		}
+
+		cout << i + 18 << "번째 /형 대각선의 경우 : " << Color << ", " << MostCnt << endl;
+
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		strcpy(Color, " ");
+	}
 
 
+	// \모양 위쪽
+	for (int i = 0; i < 19; ++i) {
+		for (int j = 18; j >= 0; --j) {
+			if (i - (18 - j) < 0)
+				break;
 
-	//// 오른쪽 위에서부터 왼쪽 아래로 체크
+			if (board[i - (18 - j)][j] != '+')
+			{
+				if (board[i - (18 - j)][j] == 'O')
+				{
+					bCnt++;
+					wCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "검은돌");
+					}
+				}
+				else if (board[i - (18 - j)][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "흰돌");
+					}
+				}
+			}
+			else if (board[i - (18 - j)][j] == '+')
+			{
+				bCnt = 0;
+				wCnt = 0;
+			}
+		}
 
-	//cout << "\\방향의 대각선 확인." << endl;
-	//for (int i = 0; i < 19; ++i)
-	//{
-	//	for (int j = 18; j >= 18-i; --j)
-	//	{
-	//		cout << i-(18-j) << " " << j << endl;
-	//	}
-	//	cout << endl;
-	//}
+		cout << i << "번째 \\형 대각선의 경우 : " << Color << ", " << MostCnt << endl;
 
-	//cout << "------------------" << endl;
-	//
-	//for (int i = 18; i > 0; --i) {
-	//	for (int j = 0; j < 19; ++j) {
-	//		if (i + j > 18)
-	//			break;
-	//		cout << i+j << " " << j << endl;
-	//	}
-	//	cout << endl;
-	//}
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		strcpy(Color, " ");
+	}
+
+	// \모양 아래쪽
+	for (int i = 1; i < 19; ++i) {
+		for (int j = 0; j < 19; ++j) {
+			if (i + j > 18)
+				break;
+
+			if (board[i + j][j] != '+')
+			{
+				if (board[i + j][j] == 'O')
+				{
+					bCnt++;
+					wCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "검은돌");
+					}
+				}
+				else if (board[i + j][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "흰돌");
+					}
+				}
+			}
+			else if (board[i + j][j] == '+')
+			{
+				bCnt = 0;
+				wCnt = 0;
+			}
+		}
+
+		cout << i + 18 << "번째 \\형 대각선의 경우 : " << Color << ", " << MostCnt << endl;
+
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		strcpy(Color, " ");
+	}
 }
 
+void CheckRowPosition()
+{
+	int MostCnt{};
+	int bCnt{};
+	int wCnt{};
+	char* Color = new char[5] { " " };
+	int x{ -1 }, y{ -1 };
+	int x2{ -1 }, y2{ -1 };
+
+	// 가로줄 확인
+	for (int i = 0; i < 19; ++i)
+	{
+		for (int j = 0; j < 19; ++j)
+		{
+			if (board[i][j] != '+')
+			{
+				if (board[i][j] == 'O')
+				{
+					bCnt++;
+					wCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "검은돌");
+						x = i;
+						y = j;
+					}
+
+				}
+				else if (board[i][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "흰돌");
+						x = i;
+						y = j;
+					}
+				}
+			}
+			else if (board[i][j] == '+')
+			{
+				bCnt = 0;
+				wCnt = 0;
+			}
+		}
+
+
+
+		cout << i << "번째 가로줄의 경우 : " << Color << ", " << MostCnt << endl;
+
+		// 돌이 착수된 위치
+		for (int j = y; j >= 0; --j)
+		{
+			if (board[i][j] == '+')
+			{
+				break;
+			}
+			else if (board[i][j] == board[x][y]) {
+				y2 = j;
+				cout << "돌이 착수된 위치는 (" << x << " " << y2 << ") 입니다." << endl;
+			}
+		}
+
+
+		x = -1;
+		y = -1;
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		strcpy(Color, " ");
+	}
+}
