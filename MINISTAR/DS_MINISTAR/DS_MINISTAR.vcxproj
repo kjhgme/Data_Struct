@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DS8-2016180015-김지호-초기코드.cpp" />
     <ClCompile Include="project.cpp" />
     <ClCompile Include="DS6-2016180015-김지호-초기코드.cpp" />
   </ItemGroup>
