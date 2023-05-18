@@ -5,7 +5,7 @@ using namespace std;
 
 void FirstBoard();
 void ShowBoard();
-void PlaceStone(int x, int y);
+void PlaceStone();
 void CheckRow();
 void Check대각();
 void CheckRowPosition();
@@ -14,6 +14,10 @@ void SaveFile();
 void LoadFile();
 void U();	// 무르기
 void R();	// 무르기 취소
+
+// 2023.05.05
+void Check줄에서연속();
+void Check대각에서연속();
 
 char board[19][19];
 int cnt{};
@@ -57,6 +61,8 @@ int main()
 		cout << "6. LoadFile" << endl;
 		cout << "U. 무르기" << endl;
 		cout << "R. 무르기 취소" << endl;
+		cout << "7. 줄에서 연속된 돌 체크" << endl;
+		cout << "8. 대각에서 연속된 돌 체크" << endl;
 		cout << "명령 입력 : ";
 		cin >> command;
 
@@ -66,9 +72,8 @@ int main()
 			ShowBoard();
 			break;
 		case '1':
-			printf("좌표를 입력해주세요. : ");
-			cin >> x >> y;
-			PlaceStone(x, y);
+			cout << "-PlaceStone-" << endl;
+			PlaceStone();
 			break;
 		case '2':
 			cout << "-CheckRow-" << endl;
@@ -93,6 +98,12 @@ int main()
 			break;
 		case 'R':
 			R();
+			break;
+		case '7':
+			Check줄에서연속();
+			break;
+		case '8':
+			Check대각에서연속();
 			break;
 		default:
 			break;
@@ -120,9 +131,20 @@ void ShowBoard()
 	}
 }
 
-void PlaceStone(int x, int y)
+void PlaceStone()
 {
 	Stone* newStone = new Stone;
+	int x{}, y{};
+
+	if (cnt % 2 == 0)
+	{
+		cout << "흑 돌의 차례입니다. ";
+	}
+	else {
+		cout << "백 돌의 차례입니다. ";
+	}
+	cout << "좌표를 입력하세요 : ";
+	cin >> x >> y;
 
 	if (board[x][y] != '+')
 	{
@@ -186,7 +208,7 @@ void CheckRow()
 					if (MostCnt < bCnt)
 					{
 						MostCnt = bCnt;
-						strcpy(Color, "검은돌");
+						strcpy(Color, "흑돌");
 					}
 				}
 				else if (board[i][j] == 'X')
@@ -196,7 +218,7 @@ void CheckRow()
 					if (MostCnt < wCnt)
 					{
 						MostCnt = wCnt;
-						strcpy(Color, "흰돌");
+						strcpy(Color, "백돌");
 					}
 				}
 			}
@@ -229,7 +251,7 @@ void CheckRow()
 					if (MostCnt < bCnt)
 					{
 						MostCnt = bCnt;
-						strcpy(Color, "검은돌");
+						strcpy(Color, "흑돌");
 					}
 				}
 				else if (board[i][j] == 'X')
@@ -239,7 +261,7 @@ void CheckRow()
 					if (MostCnt < wCnt)
 					{
 						MostCnt = wCnt;
-						strcpy(Color, "흰돌");
+						strcpy(Color, "백돌");
 					}
 				}
 			}
@@ -276,7 +298,7 @@ void Check대각()
 					if (MostCnt < bCnt)
 					{
 						MostCnt = bCnt;
-						strcpy(Color, "검은돌");
+						strcpy(Color, "흑돌");
 					}
 				}
 				else if (board[i - j][j] == 'X')
@@ -286,7 +308,7 @@ void Check대각()
 					if (MostCnt < wCnt)
 					{
 						MostCnt = wCnt;
-						strcpy(Color, "흰돌");
+						strcpy(Color, "백돌");
 					}
 				}
 			}
@@ -320,7 +342,7 @@ void Check대각()
 					if (MostCnt < bCnt)
 					{
 						MostCnt = bCnt;
-						strcpy(Color, "검은돌");
+						strcpy(Color, "흑돌");
 					}
 				}
 				else if (board[i + (18 - j)][j] == 'X')
@@ -330,7 +352,7 @@ void Check대각()
 					if (MostCnt < wCnt)
 					{
 						MostCnt = wCnt;
-						strcpy(Color, "흰돌");
+						strcpy(Color, "백돌");
 					}
 				}
 			}
@@ -365,7 +387,7 @@ void Check대각()
 					if (MostCnt < bCnt)
 					{
 						MostCnt = bCnt;
-						strcpy(Color, "검은돌");
+						strcpy(Color, "흑돌");
 					}
 				}
 				else if (board[i - (18 - j)][j] == 'X')
@@ -375,7 +397,7 @@ void Check대각()
 					if (MostCnt < wCnt)
 					{
 						MostCnt = wCnt;
-						strcpy(Color, "흰돌");
+						strcpy(Color, "백돌");
 					}
 				}
 			}
@@ -409,7 +431,7 @@ void Check대각()
 					if (MostCnt < bCnt)
 					{
 						MostCnt = bCnt;
-						strcpy(Color, "검은돌");
+						strcpy(Color, "흑돌");
 					}
 				}
 				else if (board[i + j][j] == 'X')
@@ -419,7 +441,7 @@ void Check대각()
 					if (MostCnt < wCnt)
 					{
 						MostCnt = wCnt;
-						strcpy(Color, "흰돌");
+						strcpy(Color, "백돌");
 					}
 				}
 			}
@@ -462,7 +484,7 @@ void CheckRowPosition()
 					if (MostCnt < bCnt)
 					{
 						MostCnt = bCnt;
-						strcpy(Color, "검은돌");
+						strcpy(Color, "흑돌");
 						x = i;
 						y = j;
 					}
@@ -475,7 +497,7 @@ void CheckRowPosition()
 					if (MostCnt < wCnt)
 					{
 						MostCnt = wCnt;
-						strcpy(Color, "흰돌");
+						strcpy(Color, "백돌");
 						x = i;
 						y = j;
 					}
@@ -721,4 +743,322 @@ void R()
 	stack.top = newStone;
 
 	redoStack.top = redoStack.top->next;
+}
+
+void Check줄에서연속()
+{
+	int MostCnt{};
+	int bCnt{};
+	int wCnt{};
+	int blankCnt{};
+	int tempCnt{};
+	char* Color = new char[5] {" "};
+
+	// 가로줄 확인
+	for (int i = 0; i < 19; ++i)
+	{
+		for (int j = 0; j < 19; ++j)
+		{
+			if (board[i][j] == 'O')
+			{
+				tempCnt++;
+				bCnt++;
+				wCnt = 0;
+				if (bCnt >= MostCnt)
+				{
+					MostCnt = bCnt;
+					strcpy(Color, "흑돌");
+				}
+			}
+			else if (board[i][j] == 'X')
+			{
+				wCnt++;
+				bCnt = 0;
+				if (wCnt >= MostCnt)
+				{
+					MostCnt = bCnt;
+					strcpy(Color, "백돌");
+				}
+			}
+			else if (board[i][j] != '+')
+			{
+				blankCnt++;
+			}
+		}
+
+		cout << i << "번째 가로줄의 경우 : " << Color << ", " << MostCnt << endl;
+
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		strcpy(Color, " ");
+	}
+
+	// 세로줄 확인
+	for (int j = 0; j < 19; ++j)
+	{
+		for (int i = 0; i < 19; ++i)
+		{
+			if (board[i][j] != '+')
+			{
+				if (board[i][j] == 'O')
+				{
+					bCnt++;
+					wCnt = 0;
+					blankCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "흑돌");
+					}
+				}
+				else if (board[i][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					blankCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "백돌");
+					}
+				}
+			}
+			else if (board[i][j] == '+' && blankCnt >= 1)
+			{
+				bCnt = 0;
+				wCnt = 0;
+				blankCnt = 0;
+			}
+			else if (board[i][j] == '+')
+			{
+				blankCnt++;
+			}
+		}
+
+		cout << j << "번째 세로줄의 경우 : " << Color << ", " << MostCnt << endl;
+
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		strcpy(Color, " ");
+	}
+}
+
+void Check대각에서연속()
+{
+	int MostCnt{};
+	int bCnt{};
+	int wCnt{};
+	int blankCnt{};
+	char* Color = new char[5] { " " };
+
+	// /모양 위쪽
+	for (int i = 0; i < 19; ++i) {
+		for (int j = 0; j < 19; ++j) {
+			if (i - j < 0)
+				break;
+
+			if (board[i - j][j] != '+')
+			{
+				if (board[i - j][j] == 'O')
+				{
+					bCnt++;
+					wCnt = 0;
+					blankCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "흑돌");
+					}
+				}
+				else if (board[i - j][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					blankCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "백돌");
+					}
+				}
+			}
+			else if (board[i - j][j] == '+')
+			{
+				blankCnt++;
+			}
+			else if (board[i-j][j] == '+' && blankCnt >= 1)
+			{
+				bCnt = 0;
+				wCnt = 0;
+				blankCnt = 0;
+			}
+		}
+
+		cout << i << "번째 /형 대각선의 경우 : " << Color << ", " << MostCnt << endl;
+
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		blankCnt = 0;
+		strcpy(Color, " ");
+	}
+
+	// /모양 아래쪽
+	for (int i = 1; i < 19; ++i) {
+		for (int j = 18; j >= 0; --j) {
+			if (i + (18 - j) > 18)
+				break;
+
+			if (board[i + (18 - j)][j] != '+')
+			{
+				if (board[i + (18 - j)][j] == 'O')
+				{
+					bCnt++;
+					wCnt = 0;
+					blankCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "흑돌");
+					}
+				}
+				else if (board[i + (18 - j)][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					blankCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "백돌");
+					}
+				}
+			}
+			else if (board[i + (18 - j)][j] == '+')
+			{
+				blankCnt++;
+			}
+			else if (board[i + (18 - j)][j] == '+' && blankCnt >= 1)
+			{
+				bCnt = 0;
+				wCnt = 0;
+				blankCnt = 0;
+			}
+		}
+
+		cout << i + 18 << "번째 /형 대각선의 경우 : " << Color << ", " << MostCnt << endl;
+
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		blankCnt = 0;
+		strcpy(Color, " ");
+	}
+
+
+	// \모양 위쪽
+	for (int i = 0; i < 19; ++i) {
+		for (int j = 18; j >= 0; --j) {
+			if (i - (18 - j) < 0)
+				break;
+
+			if (board[i - (18 - j)][j] != '+')
+			{
+				if (board[i - (18 - j)][j] == 'O')
+				{
+					bCnt++;
+					wCnt = 0;
+					blankCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "흑돌");
+					}
+				}
+				else if (board[i - (18 - j)][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					blankCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "백돌");
+					}
+				}
+			}
+			else if (board[i - (18 - j)][j] == '+')
+			{
+				blankCnt++;
+			}
+			if (board[i - (18 - j)][j] == '+' && blankCnt >= 1)
+			{
+				bCnt = 0;
+				wCnt = 0;
+				blankCnt = 0;
+			}
+		}
+
+		cout << i << "번째 \\형 대각선의 경우 : " << Color << ", " << MostCnt << endl;
+
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		blankCnt = 0;
+		strcpy(Color, " ");
+	}
+
+	// \모양 아래쪽
+	for (int i = 1; i < 19; ++i) {
+		for (int j = 0; j < 19; ++j) {
+			if (i + j > 18)
+				break;
+
+			if (board[i + j][j] != '+')
+			{
+				if (board[i + j][j] == 'O')
+				{
+					bCnt++;
+					wCnt = 0;
+					blankCnt = 0;
+					if (MostCnt < bCnt)
+					{
+						MostCnt = bCnt;
+						strcpy(Color, "흑돌");
+					}
+				}
+				else if (board[i + j][j] == 'X')
+				{
+					wCnt++;
+					bCnt = 0;
+					blankCnt = 0;
+					if (MostCnt < wCnt)
+					{
+						MostCnt = wCnt;
+						strcpy(Color, "백돌");
+					}
+				}
+			}
+			else if (board[i + j][j] == '+')
+			{
+				blankCnt++;
+			}
+			if (board[i + j][j] == '+' && blankCnt >= 1)
+			{
+				bCnt = 0;
+				wCnt = 0;
+				blankCnt = 0;
+			}
+		}
+
+		cout << i + 18 << "번째 \\형 대각선의 경우 : " << Color << ", " << MostCnt << endl;
+
+		bCnt = 0;
+		wCnt = 0;
+		MostCnt = 0;
+		blankCnt = 0;
+		strcpy(Color, " ");
+	}
 }
